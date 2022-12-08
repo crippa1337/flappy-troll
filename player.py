@@ -5,9 +5,9 @@ class Player(pygame.sprite.Sprite):
     x: int
     y: int
     gravity = 0.1
-    speed: int
-    max_speed = 10
-    jump_force = -5
+    velocity: int
+    max_velocity = 8
+    jump_force = -3
     
     def __init__(self):
         self.image = pygame.image.load("assets/sprites/player.jpg")
@@ -15,24 +15,32 @@ class Player(pygame.sprite.Sprite):
         self.x = (SCREEN_WIDTH / 2) - (self.rect.width / 2)
         self.y = (SCREEN_HEIGHT / 2) - (self.rect.height / 2)
         self.rect.center = (self.x, self.y)
-        self.speed = 0
+        self.velocity = 0
         screen.blit(self.image, self.rect)
         
     def is_jumping(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
-            self.speed = self.jump_force
+            self.velocity = self.jump_force
             
     def rotate(self):
-        rotated_image = pygame.transform.rotate(self.image, -self.speed * 5)
+        rotated_image = pygame.transform.rotate(self.image, -self.velocity * 5)
         new_rect = rotated_image.get_rect(center=self.image.get_rect(topleft=(self.x, self.y)).center)
         return screen.blit(rotated_image, new_rect.topleft)
+    
+    def collisions(self):
+        if self.y < 0:
+            self.y = 0
+            self.velocity = 0
     
     def update(self):
         self.is_jumping()
         self.rotate()
+        self.collisions()
         
-        if self.speed < self.max_speed:
-            self.speed += self.gravity
+        if self.velocity < self.max_velocity:
+            self.velocity += self.gravity
+        else:
+            self.velocity = self.max_velocity
         
-        self.y += self.speed
+        self.y += self.velocity

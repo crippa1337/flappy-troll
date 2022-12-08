@@ -1,6 +1,7 @@
 import pygame, sys
 from globals import * 
 from player import Player
+from obstacles import Pipes
 
 
 pygame.init()
@@ -34,22 +35,28 @@ def death_screen():
  
 def game_loop():
     player = Player()
-    
+    pipes = Pipes()
     
     running = True
     while running:
-        clock.tick(144)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        
+                
+        clock.tick(144)
         screen.fill(GRAY)
-        player.update()
         
-        if player.y > SCREEN_HEIGHT - player.rect.height:
+        pipes.draw_pipes()
+        pipes.check_collisions(player)
+        if pipes.check_collisions(player):
+            running= False
             death_screen()
+        
+        player.update()
+        if player.y > SCREEN_HEIGHT - player.rect.height:
             running = False
+            death_screen()
 
         pygame.display.flip()
 
